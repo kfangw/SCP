@@ -82,7 +82,7 @@ clean:
 	rm -rf $(CER_DIR)
 
 cereal: clone_cereal
-	cp -r $(CER_DIR)/include/cereal ./lib;
+	cp -r $(CER_DIR)/include ./lib;
 
 clone_cereal:
 	git clone https://github.com/USCiLab/cereal.git $(CER_DIR)
