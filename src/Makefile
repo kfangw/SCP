@@ -81,8 +81,8 @@ clean:
 	$(RM) *.o *~ $(MAIN) $(OBJS)
 	rm -rf $(CER_DIR)
 
-cereal:
-	git clone https://github.com/USCiLab/cereal.git $(CER_DIR)
+cereal: clone_cereal
 	cp -r $(CER_DIR)/include/cereal ./lib;
 
-
+clone_cereal:
+	git clone https://github.com/USCiLab/cereal.git $(CER_DIR)
