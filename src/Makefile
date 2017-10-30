@@ -13,11 +13,14 @@ ASTEROID_DIR=./apps/kv-stores/asteroid
 COMET_DIR=./apps/kv-stores/comet
 UTIL_DIR=./util
 LIB_DIR=./lib
+SSL_LIB_DIR=/usr/local/Cellar/openssl/1.0.2l/lib/
+CER_DIR=./cer
 
 # define any directories containing header files other than /usr/include, e.g. -I
 INCLUDES = -I $(RPC_DIR) -I $(LIB_DIR) -I $(SCP_DIR) -I $(UTIL_DIR)
 # define library paths in addition to /usr/lib, e.g. -L
-LFLAGS = 
+LFLAGS = -L $(SSL_LIB_DIR)
+
 # define any libraries to link into executable:, e.g. -l
 LIBS = -lssl -lcrypto
 
@@ -48,11 +51,24 @@ OBJS = $(join $(dir $(SRCS)), $(notdir $(SRCS:.cpp=.o)))
 
 .PHONY: clean
 
-all:$(MAIN) 
+all: | directory openssl $(MAIN)
+ifdef APP
 	@echo  Built to $(MAIN)
+else
+	@echo "Specify APP to comet or asteroid"
+	@echo "ex) export APP=comet"
+endif
+
+openssl:
+	@brew install openssl
+	@ln -fs /usr/local/opt/openssl/include/openssl /usr/local/include/
 
 $(MAIN): $(OBJS) 
 	$(CXX) $(PARAMS) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+
+directory:
+	@echo "make bin dir..."
+	mkdir -p ../bin
 
 ## Generic compilation rule
 %.o : %.cpp
@@ -63,8 +79,10 @@ $(MAIN): $(OBJS)
 
 clean:
 	$(RM) *.o *~ $(MAIN) $(OBJS)
+	rm -rf $(CER_DIR)
 
 cereal:
-	git clone https://github.com/USCiLab/cereal.git cer
-	cp -r cer/include/cereal ./lib
-	rm -rf cer
+	git clone https://github.com/USCiLab/cereal.git $(CER_DIR)
+	cp -r $(CER_DIR)/include/cereal ./lib;
+
+
