@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
   std::array<shared_ptr<StellarKV>, N> nodes;
   // Create transport layer.
   shared_ptr<FakeRPCLayer> rpc = make_shared<FakeRPCLayer>();
-
   // Create nodes.
   for (auto i =0; i < N; i++)
     nodes[i] = make_shared<StellarKV>(rpc, 0.8);

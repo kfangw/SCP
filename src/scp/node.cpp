@@ -101,6 +101,9 @@ int LocalNode::GetThreshold(){
 }
 
 SlotNum LocalNode::Propose(std::string value){
+#if DEBUG
+  printf("[INFO]Value is: %s\n", value.c_str());
+#endif
   std::lock_guard<std::mutex> lock(mtx);
   auto i = NewSlot();
   auto b = Ballot{1, value};
@@ -137,6 +140,9 @@ SlotNum LocalNode::NewSlot(){
 }
 
 void LocalNode::SendMessage(std::shared_ptr<Message> msg) {
+#if DEBUG
+  printf("[INFO] SendMessage start\n");
+#endif
   // TODO : interface with FakeRPC.
   mc->Broadcast(msg, GetQuorumSet().members);
 }

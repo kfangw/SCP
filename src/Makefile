@@ -28,6 +28,10 @@ ifeq ($(VERBOSE),1)
 PARAMS += -DVERBOSE
 endif
 
+ifeq ($(DEBUG),1)
+PARAMS += -DDEBUG
+endif
+
 # Source files.
 ifeq ($(APP),comet)
 SRCS += $(COMET_DIR)/main.cpp
