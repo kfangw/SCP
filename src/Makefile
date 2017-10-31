@@ -64,7 +64,7 @@ else
 endif
 
 openssl:
-	@brew install openssl
+	@echo "[INFO] Install openssl required"
 	@ln -fs /usr/local/opt/openssl/include/openssl /usr/local/include/
 
 $(MAIN): $(OBJS) 
