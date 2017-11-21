@@ -6,13 +6,13 @@
 #include <mutex>
 #include <memory>
 
-#include "node.hpp"
-#include "common.hpp"
+#include "scp/node.hpp"
+#include "util/common.hpp"
 #include "misc.hpp"
-#include "cereal/cereal.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/archives/json.hpp"
-#include "cereal/types/polymorphic.hpp"
+#include <cereal/cereal.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace DISTPROJ {
   

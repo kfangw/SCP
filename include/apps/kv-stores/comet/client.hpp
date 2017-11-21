@@ -4,8 +4,8 @@
 #include <string>
 #include <random>
 
-#include "node.hpp"
-#include "common.hpp"
+#include "scp/node.hpp"
+#include "util/common.hpp"
 #include "misc.hpp"
 
 namespace DISTPROJ {

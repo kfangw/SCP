@@ -6,7 +6,7 @@
 
 #include "ballot.hpp"
 #include "quorum.hpp"
-#include "common.hpp"
+#include "util/common.hpp"
 
 namespace DISTPROJ {
 

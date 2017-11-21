@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include "common.hpp"
+#include "util/common.hpp"
 #include <cereal/types/set.hpp>
 
 namespace DISTPROJ {

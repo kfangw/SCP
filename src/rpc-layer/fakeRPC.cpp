@@ -2,12 +2,12 @@
 #include <sstream>
 #include <cstdio>
 
-#include "queue.hpp"
-#include "RPC.hpp"
-#include "node.hpp"
-#include "slot.hpp"
-#include "fakeRPC.hpp"
-#include "message.hpp"
+#include "util/queue.hpp"
+#include "rpc-layer/RPC.hpp"
+#include "scp/node.hpp"
+#include "scp/slot.hpp"
+#include "rpc-layer/fakeRPC.hpp"
+#include "scp/message.hpp"
 
 using namespace DISTPROJ;
 

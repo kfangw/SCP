@@ -2,11 +2,11 @@
 #include <iostream>
 #include <set>
 
-#include "message.hpp"
-#include "fakeRPC.hpp"
-#include "quorum.hpp"
-#include "slot.hpp"
-#include "node.hpp"
+#include "scp/message.hpp"
+#include "rpc-layer/fakeRPC.hpp"
+#include "scp/quorum.hpp"
+#include "scp/slot.hpp"
+#include "scp/node.hpp"
 #include <chrono>
 #include <stdio.h>
 using namespace DISTPROJ;

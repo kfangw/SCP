@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 #include <string>
-#include "cereal/archives/json.hpp"
+#include <cereal/archives/json.hpp>
 
 typedef uint64_t NodeID;
 typedef std::string OpID;

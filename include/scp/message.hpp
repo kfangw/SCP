@@ -5,10 +5,10 @@
 
 #include "ballot.hpp"
 #include "quorum.hpp"
-#include "common.hpp"
-#include "cereal/cereal.hpp"
-#include "cereal/archives/json.hpp"
-#include "cereal/types/polymorphic.hpp"
+#include "util/common.hpp"
+#include <cereal/cereal.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace DISTPROJ {
 

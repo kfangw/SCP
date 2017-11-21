@@ -1,7 +1,7 @@
-#include "node.hpp"
-#include "quorum.hpp"
-#include "message.hpp"
-#include "slot.hpp"
+#include "scp/node.hpp"
+#include "scp/quorum.hpp"
+#include "scp/message.hpp"
+#include "scp/slot.hpp"
 #include <memory>
 using namespace DISTPROJ;
 #define NILBALLOT Ballot{0, ""}

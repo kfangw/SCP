@@ -4,8 +4,8 @@
 #include <cstdio>
 #include <iostream>
 #include <sstream>  
-#include "hash.hpp"
-#include "common.hpp"
+#include "util/hash.hpp"
+#include "util/common.hpp"
 
 
 #define DIFFICULTY 3

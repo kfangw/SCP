@@ -1,9 +1,9 @@
-#include "message.hpp"
-#include "slot.hpp"
-#include "quorum.hpp"
+#include "scp/message.hpp"
+#include "scp/slot.hpp"
+#include "scp/quorum.hpp"
 #include <string>
-#include "cereal/archives/json.hpp"
-#include "cereal/types/polymorphic.hpp"
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 
 using namespace DISTPROJ;

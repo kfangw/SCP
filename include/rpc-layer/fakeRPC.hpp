@@ -7,8 +7,8 @@
 #include <memory>
 #include <set>
 
-#include "common.hpp"
-#include "queue.hpp"
+#include "util/common.hpp"
+#include "util/queue.hpp"
 #include "RPC.hpp"
 
 namespace DISTPROJ {

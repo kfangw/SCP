@@ -1,16 +1,16 @@
 #include <iostream>
 #include <array>
 
-#include "RPC.hpp"
-#include "fakeRPC.hpp"
-#include "message.hpp"
-#include "quorum.hpp"
-#include "node.hpp"
-#include "ballot.hpp"
+#include "rpc-layer/RPC.hpp"
+#include "rpc-layer/fakeRPC.hpp"
+#include "scp/message.hpp"
+#include "scp/quorum.hpp"
+#include "scp/node.hpp"
+#include "scp/ballot.hpp"
 #include <chrono>
 #include <thread>
 #include <fstream>
-#include "stellarkv.hpp"
+#include "apps/kv-stores/asteroid/stellarkv.hpp"
 
 using namespace DISTPROJ;
 using namespace DISTPROJ::Application::StellarKV;

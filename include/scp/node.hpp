@@ -8,7 +8,7 @@
 #include <thread>
 #include <mutex>
 
-#include "common.hpp"
+#include "util/common.hpp"
 #include "quorum.hpp"
 
 namespace DISTPROJ {

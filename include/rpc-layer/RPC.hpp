@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include "common.hpp"
+#include "util/common.hpp"
 
 namespace DISTPROJ {
   class Message;
