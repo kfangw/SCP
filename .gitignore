@@ -8,3 +8,7 @@ CMakeHelloWorld
 *.a
 **/*.a
 build/**
+.idea/
+SCP.cbp
+_3rdParty/
+bin/

@@ -1,2 +1,2 @@
-add_library (rpc-layer
+add_library(rpc-layer
         fakeRPC.cpp)

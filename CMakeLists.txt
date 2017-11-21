@@ -1,13 +1,13 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 include("cmake/HunterGate.cmake")
 HunterGate(
         URL "https://github.com/ruslo/hunter/archive/v0.19.87.tar.gz"
         SHA1 "1b0041a06357d2c9f1f1a7e93ff3132c36411719"
 )
 
-project (SCP)
-set (SCP_VERSION_MAJOR 1)
-set (SCP_VERSION_MINOR 0)
+project(SCP)
+set(SCP_VERSION_MAJOR 1)
+set(SCP_VERSION_MINOR 0)
 
 hunter_add_package(cereal)
 find_package(cereal CONFIG REQUIRED)

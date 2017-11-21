@@ -15,48 +15,56 @@
 #include <cereal/types/polymorphic.hpp>
 
 namespace DISTPROJ {
-  
-  class LocalNode;
-  class RPCLayer;
 
-  namespace Application {
-    
-    namespace KVStellar {
-      
-      class ServerKV {
+    class LocalNode;
 
-        std::mutex mtx;
-        LocalNode *node;
-        float quorumThresholdRatio;
+    class RPCLayer;
 
-        std::map<std::string, std::string> db; // key --> value.
-        std::map<OpID, std::string> seen; // txID --> result. Used for at most once semantics.
-        SlotNum curSlot;
+    namespace Application {
 
-        public:
+        namespace KVStellar {
 
-        ServerKV(std::shared_ptr<RPCLayer> rpc, float _quorumThresholdRatio);
+            class ServerKV {
 
-        std::string ApplyOperation(Operation &op);
-        void Put(PutArgs &args, PutReply &reply);
-        void Get(GetArgs &args, GetReply &reply);
+                std::mutex mtx;
+                LocalNode *node;
+                float quorumThresholdRatio;
 
-        NodeID GetNodeID() { return node->GetNodeID(); };
-        int GetThreshold() {return node->GetThreshold(); };
+                std::map<std::string, std::string> db; // key --> value.
+                std::map<OpID, std::string> seen; // txID --> result. Used for at most once semantics.
+                SlotNum curSlot;
 
-        void AddPeer(NodeID peer);
-        void AddPeers(std::set<NodeID> peers);
-        void RemovePeer(NodeID peer);
-        void RemovePeers(std::set<NodeID> peers);
-        void ResizeThreshold() { 
-          node->SetThreshold(node->QuorumSize() * quorumThresholdRatio); 
-        };
+            public:
 
-      };
-      
+                ServerKV(std::shared_ptr<RPCLayer> rpc, float _quorumThresholdRatio);
+
+                std::string ApplyOperation(Operation &op);
+
+                void Put(PutArgs &args, PutReply &reply);
+
+                void Get(GetArgs &args, GetReply &reply);
+
+                NodeID GetNodeID() { return node->GetNodeID(); };
+
+                int GetThreshold() { return node->GetThreshold(); };
+
+                void AddPeer(NodeID peer);
+
+                void AddPeers(std::set<NodeID> peers);
+
+                void RemovePeer(NodeID peer);
+
+                void RemovePeers(std::set<NodeID> peers);
+
+                void ResizeThreshold() {
+                    node->SetThreshold(node->QuorumSize() * quorumThresholdRatio);
+                };
+
+            };
+
+        }
+
     }
-
-  }
 }
 
 #endif

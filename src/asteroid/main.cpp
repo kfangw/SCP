@@ -4,11 +4,7 @@
 #include "rpc-layer/RPC.hpp"
 #include "rpc-layer/fakeRPC.hpp"
 #include "scp/message.hpp"
-#include "scp/quorum.hpp"
 #include "scp/node.hpp"
-#include "scp/ballot.hpp"
-#include <chrono>
-#include <thread>
 #include <fstream>
 #include "asteroid/stellarkv.hpp"
 
@@ -19,70 +15,69 @@ const int N = 6;
 
 
 int main(int argc, char *argv[]) {
-  std::array<shared_ptr<StellarKV>, N> nodes;
-  // Create transport layer.
-  shared_ptr<FakeRPCLayer> rpc = make_shared<FakeRPCLayer>();
-  // Create nodes.
-  for (auto i =0; i < N; i++)
-    nodes[i] = make_shared<StellarKV>(rpc, 0.8);
-  set<NodeID> s;
-  for (auto i =0; i < N; i++)
-    s.insert(nodes[i]->GetNodeID());
+    std::array<shared_ptr<StellarKV>, N> nodes;
+    // Create transport layer.
+    shared_ptr<FakeRPCLayer> rpc = make_shared<FakeRPCLayer>();
+    // Create nodes.
+    for (auto i = 0; i < N; i++)
+        nodes[i] = make_shared<StellarKV>(rpc, 0.8);
+    set<NodeID> s;
+    for (auto i = 0; i < N; i++)
+        s.insert(nodes[i]->GetNodeID());
 
-  for (auto i =0; i < N; i++) {
-    nodes[i]->AddPeers(s);
-  }
-  printf("Need to get %i nodes to agree out of %i nodes\n",nodes[0]->GetThreshold(), N);
-  nodes[0]->Put("test", "MESSAGE");
-  for (;;this_thread::sleep_for(chrono::seconds(1))){
-    auto count = N;
-    for (auto n : nodes) {
-      auto r = n->Get("test");
-      if (r.second){
-        printf("Key was set to (%s) on %llu\n",r.first.second.c_str(), n->GetNodeID());
-        count--;
-      }
+    for (auto i = 0; i < N; i++) {
+        nodes[i]->AddPeers(s);
     }
-    if (count == 0) {
-      break;
+    printf("Need to get %i nodes to agree out of %i nodes\n", nodes[0]->GetThreshold(), N);
+    nodes[0]->Put("test", "MESSAGE");
+    for (;; this_thread::sleep_for(chrono::seconds(1))) {
+        auto count = N;
+        for (auto n : nodes) {
+            auto r = n->Get("test");
+            if (r.second) {
+                printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());
+                count--;
+            }
+        }
+        if (count == 0) {
+            break;
+        }
     }
-  }
 
-  //nodes[0]->Put("test2", "MESSAGE2");
-  nodes[1]->Put("test2", "MESSAGE2");
-  for (;;this_thread::sleep_for(chrono::seconds(1))){
-    auto count = N;
-    for (auto n : nodes) {
-      auto r = n->Get("test2");
-      if (r.second){
-        printf("Key was set to (%s) on %llu\n",r.first.second.c_str(), n->GetNodeID());
-        count--;
-      }
+    //nodes[0]->Put("test2", "MESSAGE2");
+    nodes[1]->Put("test2", "MESSAGE2");
+    for (;; this_thread::sleep_for(chrono::seconds(1))) {
+        auto count = N;
+        for (auto n : nodes) {
+            auto r = n->Get("test2");
+            if (r.second) {
+                printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());
+                count--;
+            }
+        }
+        if (count == 0) {
+            break;
+        }
     }
-    if (count == 0) {
-      break;
-    }
-  }
 
 
-  
-  nodes[0]->Put("test3", "MESSAGE3.1");
-  nodes[1]->Put("test3", "MESSAGE3.2");
-  for (;;this_thread::sleep_for(chrono::seconds(1))){
-    auto count = N;
-    for (auto n : nodes) {
-      auto r = n->Get("test3");
-      if (r.second){
-        printf("Key was set to (%s) on %llu\n",r.first.second.c_str(), n->GetNodeID());
-        count--;
-      }
+    nodes[0]->Put("test3", "MESSAGE3.1");
+    nodes[1]->Put("test3", "MESSAGE3.2");
+    for (;; this_thread::sleep_for(chrono::seconds(1))) {
+        auto count = N;
+        for (auto n : nodes) {
+            auto r = n->Get("test3");
+            if (r.second) {
+                printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());
+                count--;
+            }
+        }
+        if (count == 0) {
+            break;
+        }
     }
-    if (count == 0) {
-      break;
-    }
-  }
-  printf("COMPLETE\n");
-  return 0;
+    printf("COMPLETE\n");
+    return 0;
 }
 
 
@@ -149,7 +144,7 @@ int main(int argc, char *argv[]) {
 //   // nodes[0]->SendMessage(samplePrepareMsg);
 
 //   // nodes[1]->ReceiveMessage();
-  
+
 
 
 

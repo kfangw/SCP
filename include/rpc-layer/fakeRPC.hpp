@@ -12,35 +12,45 @@
 #include "RPC.hpp"
 
 namespace DISTPROJ {
-  class Node;
-  class Message;
-  class MessageClient;
+    class Node;
 
-  class FakeRPCLayer : public RPCLayer {
-    std::map<NodeID, Queue<std::string>*> messageQueues;
+    class Message;
 
-    friend MessageClient;
+    class MessageClient;
 
-  public:
-    FakeRPCLayer();
-    MessageClient* GetClient(NodeID id);
-    void AddNode(NodeID node);
+    class FakeRPCLayer : public RPCLayer {
+        std::map<NodeID, Queue<std::string> *> messageQueues;
 
-    void Send(std::shared_ptr<Message> msg, NodeID id, NodeID peerID);
-    bool Receive(std::shared_ptr<Message>* msg, NodeID id);    
-    void Broadcast(std::shared_ptr<Message> msg, NodeID id, std::set<NodeID> peers);
-  };
+        friend MessageClient;
 
-  class MessageClient{
-    NodeID id;
-    RPCLayer* rpc;
-  public:
-    MessageClient(NodeID id, RPCLayer* r);
-    void Send(std::shared_ptr<Message> msg, NodeID peerID);
-    bool Receive(std::shared_ptr<Message>* msg);    
-    void Broadcast(std::shared_ptr<Message> msg, std::set<NodeID> peers);
-    NodeID GetNodeID(){return id;};
-  };
+    public:
+        FakeRPCLayer();
+
+        MessageClient *GetClient(NodeID id);
+
+        void AddNode(NodeID node);
+
+        void Send(std::shared_ptr<Message> msg, NodeID id, NodeID peerID);
+
+        bool Receive(std::shared_ptr<Message> *msg, NodeID id);
+
+        void Broadcast(std::shared_ptr<Message> msg, NodeID id, std::set<NodeID> peers);
+    };
+
+    class MessageClient {
+        NodeID id;
+        RPCLayer *rpc;
+    public:
+        MessageClient(NodeID id, RPCLayer *r);
+
+        void Send(std::shared_ptr<Message> msg, NodeID peerID);
+
+        bool Receive(std::shared_ptr<Message> *msg);
+
+        void Broadcast(std::shared_ptr<Message> msg, std::set<NodeID> peers);
+
+        NodeID GetNodeID() { return id; };
+    };
 }
 
 #endif

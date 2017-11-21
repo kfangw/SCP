@@ -3,7 +3,7 @@ add_executable(comet
         client.cpp
         server.cpp
         )
-target_link_libraries (comet
+target_link_libraries(comet
         rpc-layer
         scp
         ssl

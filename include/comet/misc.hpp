@@ -13,52 +13,54 @@
 
 namespace DISTPROJ {
 
-  namespace Application {
-    
-    namespace KVStellar {
+    namespace Application {
 
-      // TODO : Change to enum.
-      typedef std::string Err;
+        namespace KVStellar {
 
-      enum OpType { GET, PUT };
+            // TODO : Change to enum.
+            typedef std::string Err;
 
-      struct Operation {
-        OpType opType;
-        OpID id;
-        std::string key;
-        std::string value;
+            enum OpType {
+                GET, PUT
+            };
 
-        template<class Archive>
-        void serialize(Archive & archive) {
-          archive(CEREAL_NVP(opType), 
-                  CEREAL_NVP(id), 
-                  CEREAL_NVP(key), 
-                  CEREAL_NVP(value));
+            struct Operation {
+                OpType opType;
+                OpID id;
+                std::string key;
+                std::string value;
+
+                template<class Archive>
+                void serialize(Archive &archive) {
+                    archive(CEREAL_NVP(opType),
+                            CEREAL_NVP(id),
+                            CEREAL_NVP(key),
+                            CEREAL_NVP(value));
+                }
+            };
+
+            struct GetArgs {
+                OpID id;
+                std::string key;
+            };
+
+            struct GetReply {
+                Err err;
+                std::string value;
+            };
+
+            struct PutArgs {
+                OpID id;
+                std::string key;
+                std::string value;
+            };
+
+            struct PutReply {
+                Err err;
+            };
+
         }
-      };
-
-      struct GetArgs {
-        OpID id;
-        std::string key;
-      };
-
-      struct GetReply {
-        Err err;
-        std::string value;
-      };
-
-      struct PutArgs {
-        OpID id;
-        std::string key;
-        std::string value;
-      };
-
-      struct PutReply {
-        Err err;
-      };
-
     }
-  }
 }
 
 #endif

@@ -9,45 +9,47 @@
 #include "misc.hpp"
 
 namespace DISTPROJ {
-  
-  class LocalNode;
-  class RPCLayer;
 
-  namespace Application {
-    
-    namespace KVStellar {
+    class LocalNode;
 
-      class ServerKV;
-      
-      class ClientKV {
+    class RPCLayer;
 
-        std::shared_ptr<ServerKV> server;
-        std::string name;
+    namespace Application {
 
-        public:
+        namespace KVStellar {
 
-        ClientKV(std::shared_ptr<ServerKV> svr, std::string nm);
+            class ServerKV;
 
-        void Put(std::string key, std::string value);
-        std::string Get(std::string key);
+            class ClientKV {
 
-        // TODO : Move to a common header.
-        std::string nrand() {
-          // Generate node id.
-          std::random_device rd;
-          std::mt19937 gen(rd());
-          std::uniform_int_distribution<NodeID> dist(0, ~0);
+                std::shared_ptr<ServerKV> server;
+                std::string name;
 
-          std::ostringstream os;
-          os << dist(gen);
-          return os.str();
+            public:
+
+                ClientKV(std::shared_ptr<ServerKV> svr, std::string nm);
+
+                void Put(std::string key, std::string value);
+
+                std::string Get(std::string key);
+
+                // TODO : Move to a common header.
+                std::string nrand() {
+                    // Generate node id.
+                    std::random_device rd;
+                    std::mt19937 gen(rd());
+                    std::uniform_int_distribution<NodeID> dist(0, ~0);
+
+                    std::ostringstream os;
+                    os << dist(gen);
+                    return os.str();
+                }
+
+            };
+
         }
 
-      };
-      
     }
-
-  }
 }
 
 #endif
