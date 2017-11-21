@@ -1,4 +1,4 @@
-#include "apps/kv-stores/asteroid/stellarkv.hpp"
+#include "asteroid/stellarkv.hpp"
 #include <random>
 
 using namespace DISTPROJ;

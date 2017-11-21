@@ -1,6 +1,6 @@
-#include "apps/kv-stores/comet/client.hpp"
-#include "apps/kv-stores/comet/server.hpp"
-#include "apps/kv-stores/comet/misc.hpp"
+#include "comet/client.hpp"
+#include "comet/server.hpp"
+#include "comet/misc.hpp"
 
 using namespace DISTPROJ;
 using namespace DISTPROJ::Application::KVStellar;

@@ -10,7 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
-#include "apps/kv-stores/asteroid/stellarkv.hpp"
+#include "asteroid/stellarkv.hpp"
 
 using namespace DISTPROJ;
 using namespace DISTPROJ::Application::StellarKV;

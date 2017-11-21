@@ -8,8 +8,8 @@
 #include "rpc-layer/RPC.hpp"
 #include "rpc-layer/fakeRPC.hpp"
 #include "scp/node.hpp"
-#include "apps/kv-stores/comet/server.hpp"
-#include "apps/kv-stores/comet/client.hpp"
+#include "comet/server.hpp"
+#include "comet/client.hpp"
 
 using namespace DISTPROJ;
 using namespace DISTPROJ::Application::KVStellar;

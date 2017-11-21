@@ -1,5 +1,5 @@
-#include "apps/kv-stores/comet/server.hpp"
-#include "apps/kv-stores/comet/misc.hpp"
+#include "comet/server.hpp"
+#include "comet/misc.hpp"
 
 #include <random>
 
