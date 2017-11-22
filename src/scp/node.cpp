@@ -1,7 +1,6 @@
 
 #include <iostream>
 #include <set>
-
 #include "scp/message.hpp"
 #include "rpc-layer/fakeRPC.hpp"
 #include "scp/slot.hpp"
@@ -9,14 +8,14 @@
 
 using namespace DISTPROJ;
 
-Node::Node(NodeID _id, RPCLayer &_rpc)
+Node::Node(NodeID _id, const std::shared_ptr<RPCLayer> _rpc)
         : id(_id), rpc(_rpc), t(nullptr) {
-    rpc.AddNode(id);
+    rpc->AddNode(id);
 }
 
-Node::Node(NodeID _id, RPCLayer &_rpc, Quorum _quorumSet)
-        : id(_id), rpc(_rpc), quorumSet(_quorumSet), t(nullptr) {
-    rpc.AddNode(id);
+Node::Node(NodeID _id, const std::shared_ptr<RPCLayer> _rpc, Quorum _quorumSet)
+        : id(_id), rpc(_rpc), quorumSet(std::move(_quorumSet)), t(nullptr) {
+    rpc->AddNode(id);
 }
 
 NodeID Node::GetNodeID() {
@@ -27,6 +26,7 @@ Quorum Node::GetQuorumSet() {
     return quorumSet;
 }
 
+#ifdef USED
 void Node::PrintQuorumSet() {
     printf("Printing quorum set for node %llu \n", id);
     printf("Threshold: %i ", quorumSet.threshold);
@@ -36,15 +36,16 @@ void Node::PrintQuorumSet() {
         std::cout << (*iter) << "\n";
     }
 }
+#endif
 
-LocalNode::LocalNode(NodeID _id, RPCLayer &_rpc)
+LocalNode::LocalNode(NodeID _id, std::shared_ptr<RPCLayer> _rpc)
         : Node(_id, _rpc) {
-    mc = _rpc.GetClient(_id);
+    mc = _rpc->GetClient(_id);
 };
 
-LocalNode::LocalNode(NodeID _id, RPCLayer &_rpc, Quorum _quorumSet)
-        : Node(_id, _rpc, _quorumSet) {
-    mc = _rpc.GetClient(_id);
+LocalNode::LocalNode(NodeID _id, std::shared_ptr<RPCLayer> _rpc, Quorum _quorumSet)
+        : Node(_id, _rpc, std::move(_quorumSet)) {
+    mc = _rpc->GetClient(_id);
 };
 
 void LocalNode::Tick() {
@@ -53,17 +54,12 @@ void LocalNode::Tick() {
         std::lock_guard<std::mutex> lock(mtx);
         if (ReceiveMessage(&m)) {
             ProcessMessage(m);
-
-
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
 void LocalNode::Start() {
-#ifdef VERBOSE
-    printf(" Start\n");
-#endif
     if (t == nullptr) {
         t = new std::thread(&LocalNode::Tick, this);
     }
@@ -74,7 +70,7 @@ void LocalNode::AddKnownNode(NodeID v) {
 }
 
 void LocalNode::UpdateQurorum(Quorum _quorumSet) {
-    quorumSet = _quorumSet;
+    quorumSet = std::move(_quorumSet);
 }
 
 void LocalNode::AddNodeToQuorum(NodeID v) {
@@ -85,12 +81,12 @@ void LocalNode::RemoveNodeFromQuorum(NodeID v) {
     quorumSet.members.erase(v);
 }
 
-int LocalNode::QuorumSize() {
+unsigned long LocalNode::QuorumSize() {
     return quorumSet.members.size();
 
 }
 
-void LocalNode::SetThreshold(int t) {
+void LocalNode::SetThreshold(unsigned long t) {
     if (t > QuorumSize()) {
         quorumSet.threshold = QuorumSize();
     } else {
@@ -98,7 +94,7 @@ void LocalNode::SetThreshold(int t) {
     }
 }
 
-int LocalNode::GetThreshold() {
+unsigned long LocalNode::GetThreshold() {
     return quorumSet.threshold;
 }
 
@@ -108,12 +104,12 @@ SlotNum LocalNode::Propose(std::string value) {
 #endif
     std::lock_guard<std::mutex> lock(mtx);
     auto i = NewSlot();
-    auto b = Ballot{1, value};
+    auto b = Ballot{1, std::move(value)};
     printf("Finding Nonce\n");
     auto nonce = generateNonce(&b, i);
     printf("Nonce Found %llu\n", nonce);
-    auto m = std::make_shared<PrepareMessage>(id, i, b, Ballot{}, Ballot{}, Ballot{}, quorumSet,
-                                              0); /* TODO; resending etc */
+    auto m = std::make_shared<PrepareMessage>(id, i, b, Ballot{}, Ballot{}, Ballot{}, quorumSet, 0);
+    /* TODO; resending etc */
     SendMessage(m);
     printf("messages sent\n");
     return i;
@@ -121,7 +117,7 @@ SlotNum LocalNode::Propose(std::string value) {
 
 void LocalNode::Propose(std::string value, SlotNum sn) {
     std::lock_guard<std::mutex> lock(mtx);
-    auto b = Ballot{1, value};
+    auto b = Ballot{1, std::move(value)};
 #ifdef VERBOSE
     printf("Finding Nonce\n");
 #endif
@@ -129,8 +125,8 @@ void LocalNode::Propose(std::string value, SlotNum sn) {
 #ifdef VERBOSE
     printf("Nonce Found %llu\n", nonce);
 #endif
-    auto m = std::make_shared<PrepareMessage>(id, sn, b, Ballot{}, Ballot{}, Ballot{}, quorumSet,
-                                              0); /* TODO; resending etc */
+    auto m = std::make_shared<PrepareMessage>(id, sn, b, Ballot{}, Ballot{}, Ballot{}, quorumSet, 0);
+    /* TODO; resending etc */
     SendMessage(m);
 #ifdef VERBOSE
     printf("messages sent\n");
@@ -138,9 +134,7 @@ void LocalNode::Propose(std::string value, SlotNum sn) {
 }
 
 SlotNum LocalNode::NewSlot() {
-    auto a = maxSlot;
-    //maxSlot++;
-    return a;
+    return maxSlot;
 }
 
 void LocalNode::SendMessage(std::shared_ptr<Message> msg) {
@@ -148,12 +142,12 @@ void LocalNode::SendMessage(std::shared_ptr<Message> msg) {
     printf("[INFO] SendMessage start\n");
 #endif
     // TODO : interface with FakeRPC.
-    mc->Broadcast(msg, GetQuorumSet().members);
+    mc->Broadcast(std::move(msg), GetQuorumSet().members);
 }
 
 void LocalNode::SendMessageTo(std::shared_ptr<Message> msg, NodeID i) {
     // TODO : interface with FakeRPC.
-    mc->Send(msg, i);
+    mc->Send(std::move(msg), i);
 }
 
 bool LocalNode::ReceiveMessage(std::shared_ptr<Message> *msg) {
@@ -190,12 +184,9 @@ void LocalNode::DumpLog() {
 std::pair<std::string, bool> LocalNode::View(SlotNum s) {
     std::lock_guard<std::mutex> lock(mtx);
     try {
-#ifdef VERBOSE
-        printf("VIEW: %s\n", log.at(s)->Phase_s().c_str());
-#endif
         bool b = log.at(s)->GetPhase() == EXTERNALIZE;
         return std::pair<std::string, bool>(log.at(s)->GetValue(), b);
-    } catch (std::out_of_range) {
+    } catch (const std::out_of_range& e) {
         return std::pair<std::string, bool>("", false);
     }
 }

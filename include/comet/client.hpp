@@ -5,7 +5,6 @@
 #include <random>
 
 #include "scp/node.hpp"
-#include "util/common.hpp"
 #include "misc.hpp"
 
 namespace DISTPROJ {
@@ -14,42 +13,24 @@ namespace DISTPROJ {
 
     class RPCLayer;
 
-    namespace Application {
+    class ServerKV;
 
-        namespace KVStellar {
+    class ClientKV {
 
-            class ServerKV;
+        std::shared_ptr<ServerKV> server;
+        std::string name;
 
-            class ClientKV {
+    public:
 
-                std::shared_ptr<ServerKV> server;
-                std::string name;
+        ClientKV(const std::shared_ptr<ServerKV> &svr, std::string nm)
+                : server(std::move(svr)), name(std::move(nm)) {};
 
-            public:
+        void Put(std::string key, std::string value);
 
-                ClientKV(std::shared_ptr<ServerKV> svr, std::string nm);
+        std::string Get(std::string key);
 
-                void Put(std::string key, std::string value);
+    };
 
-                std::string Get(std::string key);
-
-                // TODO : Move to a common header.
-                std::string nrand() {
-                    // Generate node id.
-                    std::random_device rd;
-                    std::mt19937 gen(rd());
-                    std::uniform_int_distribution<NodeID> dist(0, ~0);
-
-                    std::ostringstream os;
-                    os << dist(gen);
-                    return os.str();
-                }
-
-            };
-
-        }
-
-    }
 }
 
 #endif

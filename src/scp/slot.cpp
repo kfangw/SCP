@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "scp/node.hpp"
 #include "scp/message.hpp"
 #include "scp/slot.hpp"
@@ -5,7 +7,7 @@
 using namespace DISTPROJ;
 #define NILBALLOT Ballot{0, ""}
 
-Slot::Slot(int id, LocalNode *m) : phi(PREPARE), node(m) {
+Slot::Slot(SlotNum id, LocalNode* m) : phi(PREPARE), node(m) {
     state.slotNum = id;
     state.b = NILBALLOT;
     state.p = NILBALLOT;
@@ -27,7 +29,7 @@ std::shared_ptr<FinishMessage> Slot::Finish() {
 void Slot::lastDefined(NodeID from, std::shared_ptr<Message> *last) {
     try {
         *last = M.at(from);
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range &e) {
         *last = std::make_shared<PrepareMessage>(from, 0, NILBALLOT, NILBALLOT, NILBALLOT, NILBALLOT, Quorum{}, 0);
         M[from] = *last;
     }
@@ -35,6 +37,7 @@ void Slot::lastDefined(NodeID from, std::shared_ptr<Message> *last) {
 }
 
 void Slot::handle(std::shared_ptr<Message> _msg) {
+    printf("PROCESS MESSAGE\n\n\n\n");
     // Add the message to be the last message seen
     // Handle the response
     std::shared_ptr<Message> last;
@@ -43,6 +46,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
 #endif
     switch (_msg->type()) {
         case PrepareMessage_t: {
+            printf(" 1111 PROCESS MESSAGE\n\n\n\n");
             auto pmsg = std::static_pointer_cast<PrepareMessage>(_msg);
             auto from = pmsg->from();
 
@@ -66,6 +70,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
         }
             break;
         case FinishMessage_t: {
+            printf(" 22222 PROCESS MESSAGE\n\n\n\n");
             auto fmsg = std::static_pointer_cast<FinishMessage>(_msg);
             auto from = fmsg->from();
 
@@ -89,6 +94,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
         }
             break;
         default:
+            printf(" 33333 PROCESS MESSAGE\n\n\n\n");
             exit(EXIT_FAILURE);
             break;
     }
@@ -139,7 +145,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
     if (compatible(msg->b, state.p) || state.p == NILBALLOT) {
         // Now check that one of our quorum slices has all voted for or
         // accepted b.
-        auto b_voted_or_accepted = node->quorumSet.threshold;
+        auto b_voted_or_accepted = node->GetQuorumSet().threshold;
         for (auto kp : M) {
             auto m = kp.second;
             switch (m->type()) {
@@ -165,7 +171,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
         }
     } else {
         // Statement contradicted. Check for v-blocking.
-        auto b_vblock_vote = node->quorumSet.threshold;
+        auto b_vblock_vote = node->GetQuorumSet().threshold;
         for (auto kp : M) {
             auto m = kp.second;
             switch (m->type()) {
@@ -205,7 +211,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
     }
 
     if (state.b != state.c && state.b == state.p /* V confirms b is prepared */ ) {
-        auto b_prepared = node->quorumSet.threshold;
+        auto b_prepared = node->GetQuorumSet().threshold;
         for (auto kp : M) {
             auto m = kp.second;
             switch (m->type()) {
@@ -229,8 +235,6 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
         }
 
     }
-
-
 }
 
 void Slot::handle(std::shared_ptr<FinishMessage> msg) {
@@ -248,12 +252,13 @@ void Slot::handle(std::shared_ptr<FinishMessage> msg) {
     }
     if (phi == FINISH && state.b == state.p && state.b == state.c && msg->b == state.b) { // RULE 4
         // Check that this node ~confirms~ b.
-        auto b_commit = node->quorumSet.threshold;
+        auto b_commit = node->GetQuorumSet().threshold;
         for (auto kp : M) {
             auto m = kp.second;
             switch (m->type()) {
                 case FinishMessage_t:
-                    if ((std::static_pointer_cast<FinishMessage>(m))->b == state.c) { // Finish -> b == Prepare -> c
+                    if ((std::static_pointer_cast<FinishMessage>(m))->b ==
+                        state.c) { // Finish -> b == Prepare -> c
                         b_commit--;
                     }
                     break;
@@ -281,7 +286,8 @@ void Slot::handle(std::shared_ptr<FinishMessage> msg) {
 // Dump state / received message inforamtion.
 void Slot::Dump() {
     printf("Dumping id: %llu\n    slot: %u, b: %d, p: %d, p_: %d, c:%d \n%s\n, Phase %s\n", node->GetNodeID(),
-           state.slotNum, state.b.num, state.p.num, state.p_.num, state.c.num, state.c.value.c_str(),
+           static_cast<unsigned int>(state.slotNum), state.b.num, state.p.num, state.p_.num, state.c.num,
+           state.c.value.c_str(),
            Phase_s().c_str());
 }
 

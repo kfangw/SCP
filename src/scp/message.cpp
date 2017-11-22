@@ -4,27 +4,6 @@
 
 using namespace DISTPROJ;
 
-
-
-
-// template<class Archive>
-// void Message::serialize(Archive & archive) {
-//   auto pm = (PrepareMessage*) this;
-//   auto fm = (FinishMessage*) this;
-//   switch (t) {
-//   case PrepareMessage_t:
-// 	pm->serialize(archive);
-// 	break;
-//   case FinishMessage_t:
-// 	fm->serialize(archive);
-// 	break;
-//   default:
-// 	archive("grave error: Tried to serialize raw message");
-// 	break;
-//   }
-// }
-
-
 bool FinishMessage::follows(std::shared_ptr<Message> x) {
     auto m = std::static_pointer_cast<FinishMessage>(x);
     switch (x->type()) {
@@ -58,4 +37,5 @@ bool PrepareMessage::follows(std::shared_ptr<Message> x) {
             return true;
     }
 }
+
 

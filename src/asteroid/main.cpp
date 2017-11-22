@@ -8,31 +8,35 @@
 #include <fstream>
 #include "asteroid/stellarkv.hpp"
 
+#define N_NODES 6
+
 using namespace DISTPROJ;
-using namespace DISTPROJ::Application::StellarKV;
 using namespace std;
+
 const int N = 6;
 
-
 int main(int argc, char *argv[]) {
-    std::array<shared_ptr<StellarKV>, N> nodes;
+#ifdef PRINTFUNC
+    printf("[FUNCTION] %s\n, ", __PRETTY_FUNCTION__);
+#endif
+    std::array<shared_ptr<StellarKV>, N_NODES> nodes;
     // Create transport layer.
     shared_ptr<FakeRPCLayer> rpc = make_shared<FakeRPCLayer>();
     // Create nodes.
-    for (auto i = 0; i < N; i++)
+    for (auto i = 0; i < N_NODES; i++)
         nodes[i] = make_shared<StellarKV>(rpc, 0.8);
     set<NodeID> s;
-    for (auto i = 0; i < N; i++)
+    for (auto i = 0; i < N_NODES; i++)
         s.insert(nodes[i]->GetNodeID());
 
-    for (auto i = 0; i < N; i++) {
+    for (auto i = 0; i < N_NODES; i++) {
         nodes[i]->AddPeers(s);
     }
-    printf("Need to get %i nodes to agree out of %i nodes\n", nodes[0]->GetThreshold(), N);
+    printf("Need to get %i nodes to agree out of %i nodes\n", nodes[0]->GetThreshold(), N_NODES);
     nodes[0]->Put("test", "MESSAGE");
     for (;; this_thread::sleep_for(chrono::seconds(1))) {
-        auto count = N;
-        for (auto n : nodes) {
+        auto count = N_NODES;
+        for (const auto &n : nodes) {
             auto r = n->Get("test");
             if (r.second) {
                 printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());
@@ -47,8 +51,8 @@ int main(int argc, char *argv[]) {
     //nodes[0]->Put("test2", "MESSAGE2");
     nodes[1]->Put("test2", "MESSAGE2");
     for (;; this_thread::sleep_for(chrono::seconds(1))) {
-        auto count = N;
-        for (auto n : nodes) {
+        auto count = N_NODES;
+        for (const auto &n : nodes) {
             auto r = n->Get("test2");
             if (r.second) {
                 printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());
@@ -64,8 +68,8 @@ int main(int argc, char *argv[]) {
     nodes[0]->Put("test3", "MESSAGE3.1");
     nodes[1]->Put("test3", "MESSAGE3.2");
     for (;; this_thread::sleep_for(chrono::seconds(1))) {
-        auto count = N;
-        for (auto n : nodes) {
+        auto count = N_NODES;
+        for (const auto &n : nodes) {
             auto r = n->Get("test3");
             if (r.second) {
                 printf("Key was set to (%s) on %llu\n", r.first.second.c_str(), n->GetNodeID());

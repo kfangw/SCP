@@ -1,17 +1,17 @@
+#include <utility>
+#include <string>
+
+#include "util/common.hpp"
 #include "comet/client.hpp"
 #include "comet/server.hpp"
 
 using namespace DISTPROJ;
-using namespace DISTPROJ::Application::KVStellar;
-
-ClientKV::ClientKV(std::shared_ptr<ServerKV> svr, std::string nm)
-        : server(svr), name(nm) {}
 
 void ClientKV::Put(std::string key, std::string value) {
     PutArgs args;
-    args.id = nrand();
-    args.key = key;
-    args.value = value;
+    args.id = std::to_string(nrand());
+    args.key = std::move(key);
+    args.value = std::move(value);
 
     PutReply reply;
 
@@ -21,8 +21,8 @@ void ClientKV::Put(std::string key, std::string value) {
 
 std::string ClientKV::Get(std::string key) {
     GetArgs args;
-    args.id = nrand();
-    args.key = key;
+    args.id = std::to_string(nrand());
+    args.key = std::move(key);
 
     GetReply reply;
 

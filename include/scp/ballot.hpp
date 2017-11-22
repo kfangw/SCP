@@ -23,8 +23,8 @@ namespace DISTPROJ {
     };
 
     inline bool checkNonce(Ballot *b, SlotNum s, Nonce nonce) {
-        return sha256(b->value + std::to_string(s) + std::to_string(nonce)).substr(0, DIFFICULTY).find_first_not_of(
-                '0') == std::string::npos;
+        return sha256(b->value + std::to_string(s) + std::to_string(nonce)).substr(0, DIFFICULTY).find_first_not_of('0')
+               == std::string::npos;
     }
 
     inline Nonce generateNonce(Ballot *b, SlotNum s) {
@@ -37,7 +37,7 @@ namespace DISTPROJ {
 
     inline bool operator==(const Ballot &lhs, const Ballot &rhs) {
 #ifdef VERBOSE
-        printf("comparing %s %s \n", lhs.value.c_str(), rhs.value.c_str());
+        printf("comparing [[%s %s ]]\n", lhs.value.c_str(), rhs.value.c_str());
 #endif
         return lhs.num == rhs.num && lhs.value == rhs.value;
     }

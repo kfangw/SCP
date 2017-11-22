@@ -1,3 +1,4 @@
+#include <utility>
 #include <vector>
 #include <sstream>
 
@@ -10,9 +11,7 @@
 
 using namespace DISTPROJ;
 
-// FakeRPCLayer
-
-FakeRPCLayer::FakeRPCLayer() {}
+FakeRPCLayer::FakeRPCLayer() = default;
 
 void FakeRPCLayer::AddNode(NodeID node) {
     messageQueues[node] = new Queue<std::string>();
@@ -48,9 +47,12 @@ void FakeRPCLayer::Send(std::shared_ptr<Message> msg, NodeID id, NodeID peerID) 
 
 bool FakeRPCLayer::Receive(std::shared_ptr<Message> *msg, NodeID id) {
     // We only have 1 thread dequeing so this is chill.
+    printf("%llu", id) ;
     if (messageQueues[id]->Empty()) {
+        printf("IFIF\n\n");
         return false;
     } else {
+        printf("ELSE\n\n");
         std::istringstream ss;
         ss.str(messageQueues[id]->Get());
         {
@@ -62,7 +64,6 @@ bool FakeRPCLayer::Receive(std::shared_ptr<Message> *msg, NodeID id) {
 }
 
 void FakeRPCLayer::Broadcast(std::shared_ptr<Message> msg, NodeID id, std::set<NodeID> peers) {
-    // Client messages itself.
 #if DEBUG
     printf("[INFO] FakeRPCLayer::Broadcast Begin!\n");
     printf("[INFO] NodeID: %llu\n", id);
@@ -87,7 +88,7 @@ void MessageClient::Send(std::shared_ptr<Message> msg, NodeID peerID) {
 #if DEBUG
     printf("[INFO] MessageClient::Send Begin!\n");
 #endif
-    rpc->Send(msg, id, peerID);
+    rpc->Send(std::move(msg), id, peerID);
 }
 
 bool MessageClient::Receive(std::shared_ptr<Message> *msg) {
@@ -101,6 +102,6 @@ void MessageClient::Broadcast(std::shared_ptr<Message> msg, std::set<NodeID> pee
 #if DEBUG
     printf("[INFO] MessageClient::Broadcast Begin!\n");
 #endif
-    rpc->Broadcast(msg, id, peers);
+    rpc->Broadcast(std::move(msg), id, peers);
 }
 

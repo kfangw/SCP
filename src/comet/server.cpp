@@ -1,18 +1,12 @@
+#include "util/common.hpp"
 #include "comet/server.hpp"
 
-#include <random>
-
 using namespace DISTPROJ;
-using namespace DISTPROJ::Application::KVStellar;
 
 ServerKV::ServerKV(std::shared_ptr<RPCLayer> rpc, float _quorumThresholdRatio)
         : quorumThresholdRatio(_quorumThresholdRatio) {
-    // Generate node id.
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<NodeID> dist(0, ~0);
 
-    node = new LocalNode(dist(gen), *rpc, Quorum{});
+    node = new LocalNode(nrand(), rpc, Quorum{});
     curSlot = 0;
 
     node->Start();
@@ -20,7 +14,6 @@ ServerKV::ServerKV(std::shared_ptr<RPCLayer> rpc, float _quorumThresholdRatio)
 
 void ServerKV::Put(PutArgs &args, PutReply &reply) {
     std::lock_guard<std::mutex> lock(mtx);
-
     Operation op;
     op.id = args.id;
     op.opType = PUT;
@@ -44,10 +37,10 @@ void ServerKV::Get(GetArgs &args, GetReply &reply) {
 }
 
 std::string ServerKV::ApplyOperation(Operation &op) {
-    while (1) {
+    while (true) {
         // Check if we've seen this operation.
         {
-            std::map<OpID, std::string>::iterator it = seen.find(op.id);
+            auto it = seen.find(op.id);
             if (it != seen.end()) {
                 return it->second;
             }
@@ -85,7 +78,7 @@ std::string ServerKV::ApplyOperation(Operation &op) {
         }
 
         // Apply operation.
-        std::string result = "";
+        std::string result;
         switch (decidedOp.opType) {
             case GET:
                 seen[decidedOp.id] = db[decidedOp.key];

@@ -8,7 +8,6 @@
 #include <thread>
 #include <mutex>
 
-#include "util/common.hpp"
 #include "quorum.hpp"
 
 namespace DISTPROJ {
@@ -24,19 +23,21 @@ namespace DISTPROJ {
     class Node {
 
     public:
-        Node(NodeID _id, RPCLayer &_rpc);
+        Node(NodeID _id, std::shared_ptr<RPCLayer> _rpc);
 
-        Node(NodeID _id, RPCLayer &_rpc, Quorum _quorumSet);
+        Node(NodeID _id, std::shared_ptr<RPCLayer> _rpc, Quorum _quorumSet);
 
         NodeID GetNodeID();
 
         Quorum GetQuorumSet();
 
+#if USED
         void PrintQuorumSet();
+#endif
 
     protected:
         NodeID id;
-        RPCLayer &rpc;
+        std::shared_ptr<RPCLayer> rpc;
         Quorum quorumSet;
         std::thread *t;
         friend Slot;
@@ -46,9 +47,9 @@ namespace DISTPROJ {
     class LocalNode : public Node {
 
     public:
-        LocalNode(NodeID _id, RPCLayer &_rpc);
+        LocalNode(NodeID _id, std::shared_ptr<RPCLayer> _rpc);
 
-        LocalNode(NodeID _id, RPCLayer &_rpc, Quorum _quorumSet);
+        LocalNode(NodeID _id, std::shared_ptr<RPCLayer> _rpc, Quorum _quorumSet);
 
         void AddKnownNode(NodeID v);
 
@@ -58,11 +59,11 @@ namespace DISTPROJ {
 
         void UpdateQurorum(Quorum quorumSet);
 
-        int QuorumSize();
+        unsigned long QuorumSize();
 
-        void SetThreshold(int t);
+        void SetThreshold(unsigned long t);
 
-        int GetThreshold();
+        unsigned long GetThreshold();
 
         void Start();
 

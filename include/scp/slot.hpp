@@ -4,9 +4,9 @@
 #include <string>
 #include <map>
 
+#include "util/common.hpp"
 #include "ballot.hpp"
 #include "quorum.hpp"
-#include "util/common.hpp"
 
 namespace DISTPROJ {
 
@@ -27,14 +27,14 @@ namespace DISTPROJ {
         Ballot p;
         Ballot p_;
         Ballot c;
-        unsigned int slotNum;
+        SlotNum slotNum;
     };
 
 
     class Slot {
 
     public:
-        Slot(int id, LocalNode *m);
+        Slot(SlotNum id, LocalNode* m);
 
         void handle(std::shared_ptr<Message> msg);
 
@@ -58,13 +58,11 @@ namespace DISTPROJ {
         void handle(std::shared_ptr<FinishMessage> msg);
 
         void lastDefined(NodeID n, std::shared_ptr<Message> *m);
-        // void handlePrepare(NodeID v, Quorum& d, SlotState vState);
-        // void handleFinish(NodeID v, Quorum& d, SlotState vState);
 
         SlotState state;
         Phase phi;
         std::map<NodeID, std::shared_ptr<Message>> M;
-        LocalNode *node;
+        LocalNode* node;
 
         std::shared_ptr<PrepareMessage> Prepare();
 
