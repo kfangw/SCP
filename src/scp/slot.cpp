@@ -117,7 +117,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
     // First case: We've never voted for anything. I.E. b = 0;
     // Vote for b but don't accept yet.
     if (state.b == NILBALLOT) {
-        state.b.value = msg->b.value;
+        state.b.value = msg->GetB().value;
         state.b.num = 1;
         // Send out vote for b.
         node->SendMessage(Prepare());
@@ -137,7 +137,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
     // Check that we haven't accepted a contradicting statement.
 
     // NOTE : the > operator does not accomplish the logic below.
-    if (compatible(msg->b, state.p) || state.p == NILBALLOT) {
+    if (compatible(msg->GetB(), state.p) || state.p == NILBALLOT) {
         // Now check that one of our quorum slices has all voted for or
         // accepted b.
         auto b_voted_or_accepted = node->GetQuorumSet().threshold;
@@ -145,13 +145,13 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
             auto m = kp.second;
             switch (m->type()) {
                 case FinishMessage_t:
-                    if ((std::static_pointer_cast<FinishMessage>(m))->b == msg->b) {
+                    if ((std::static_pointer_cast<FinishMessage>(m))->GetB() == msg->GetB()) {
                         b_voted_or_accepted--;
                     }
                     break;
                 case PrepareMessage_t:
-                    if ((std::static_pointer_cast<PrepareMessage>(m))->b == msg->b ||
-                        (std::static_pointer_cast<PrepareMessage>(m))->p == msg->b) {
+                    if ((std::static_pointer_cast<PrepareMessage>(m))->GetB() == msg->GetB() ||
+                        (std::static_pointer_cast<PrepareMessage>(m))->GetP() == msg->GetB()) {
                         b_voted_or_accepted--;
                     }
                     break;
@@ -171,12 +171,12 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
             auto m = kp.second;
             switch (m->type()) {
                 case FinishMessage_t:
-                    if ((std::static_pointer_cast<FinishMessage>(m))->b == msg->b) {
+                    if ((std::static_pointer_cast<FinishMessage>(m))->GetB() == msg->GetB()) {
                         b_vblock_vote--;
                     }
                     break;
                 case PrepareMessage_t:
-                    if ((std::static_pointer_cast<PrepareMessage>(m))->p == msg->b) {
+                    if ((std::static_pointer_cast<PrepareMessage>(m))->GetP() == msg->GetB()) {
                         b_vblock_vote--;
                     }
                     break;
@@ -185,8 +185,8 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
             if (b_vblock_vote == 0) {
                 // v-blocking set found so vote the contradicting ballot.
                 state.p_ = state.p;
-                state.p = Ballot{};
-                state.b.value = msg->b.value;
+                state.p = NILBALLOT;
+                state.b.value = msg->GetB().value;
                 state.b.num += 1;
                 returnNow = true;
                 break;
@@ -197,7 +197,7 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
 
     // If a c ballot exists but p >!~ c or p_ >!~ c, clear c.
     if (state.c.num != 0 && (state.p > state.c || state.p_ > state.c)) {
-        state.c = Ballot{};
+        state.c = NILBALLOT;
         returnNow = true;
     }
 
@@ -211,12 +211,12 @@ void Slot::handle(std::shared_ptr<PrepareMessage> msg) {
             auto m = kp.second;
             switch (m->type()) {
                 case FinishMessage_t:
-                    if ((std::static_pointer_cast<FinishMessage>(m))->b == state.p) {
+                    if ((std::static_pointer_cast<FinishMessage>(m))->GetB() == state.p) {
                         b_prepared--;
                     }
                     break;
                 case PrepareMessage_t:
-                    if ((std::static_pointer_cast<PrepareMessage>(m))->b == state.p) {
+                    if ((std::static_pointer_cast<PrepareMessage>(m))->GetB() == state.p) {
                         b_prepared--;
                     }
                     break;
@@ -237,28 +237,28 @@ void Slot::handle(std::shared_ptr<FinishMessage> msg) {
     printf("Finish\n");
 #endif
     // Finish message implies every statement implied by Prepare v i b b 0 b D.
-    auto p = std::make_shared<PrepareMessage>(node->GetNodeID(), state.slotNum, state.b, state.b, Ballot{}, state.b,
+    auto p = std::make_shared<PrepareMessage>(node->GetNodeID(), state.slotNum, state.b, state.b, NILBALLOT, state.b,
                                               node->GetQuorumSet(), 0);
     // handle(p);
-    if (phi == PREPARE && state.b == state.p && state.b == state.c && msg->b == state.b) { // RULE 3
+    if (phi == PREPARE && state.b == state.p && state.b == state.c && msg->GetB() == state.b) { // RULE 3
         phi = FINISH;
         // TODO (JHH) : Figure what if anything needs to happen here.
         //return; /// ???????????????????>?>?????????????????questionmark??
     }
-    if (phi == FINISH && state.b == state.p && state.b == state.c && msg->b == state.b) { // RULE 4
+    if (phi == FINISH && state.b == state.p && state.b == state.c && msg->GetB() == state.b) { // RULE 4
         // Check that this node ~confirms~ b.
         auto b_commit = node->GetQuorumSet().threshold;
         for (auto kp : M) {
             auto m = kp.second;
             switch (m->type()) {
                 case FinishMessage_t:
-                    if ((std::static_pointer_cast<FinishMessage>(m))->b ==
+                    if ((std::static_pointer_cast<FinishMessage>(m))->GetB() ==
                         state.c) { // Finish -> b == Prepare -> c
                         b_commit--;
                     }
                     break;
                 case PrepareMessage_t:
-                    if ((std::static_pointer_cast<PrepareMessage>(m))->c == state.c) {
+                    if ((std::static_pointer_cast<PrepareMessage>(m))->GetC() == state.c) {
                         b_commit--;
                     }
                     break;

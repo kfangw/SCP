@@ -108,7 +108,7 @@ SlotNum LocalNode::Propose(std::string value) {
     printf("Finding Nonce\n");
     auto nonce = generateNonce(&b, i);
     printf("Nonce Found %llu\n", nonce);
-    auto m = std::make_shared<PrepareMessage>(id, i, b, Ballot{}, Ballot{}, Ballot{}, quorumSet, 0);
+    auto m = std::make_shared<PrepareMessage>(id, i, b, NILBALLOT, NILBALLOT, NILBALLOT, quorumSet, 0);
     /* TODO; resending etc */
     SendMessage(m);
     printf("messages sent\n");
@@ -125,7 +125,7 @@ void LocalNode::Propose(std::string value, SlotNum sn) {
 #ifdef VERBOSE
     printf("Nonce Found %llu\n", nonce);
 #endif
-    auto m = std::make_shared<PrepareMessage>(id, sn, b, Ballot{}, Ballot{}, Ballot{}, quorumSet, 0);
+    auto m = std::make_shared<PrepareMessage>(id, sn, b, NILBALLOT, NILBALLOT, NILBALLOT, quorumSet, 0);
     /* TODO; resending etc */
     SendMessage(m);
 #ifdef VERBOSE

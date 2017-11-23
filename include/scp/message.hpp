@@ -27,25 +27,30 @@ namespace DISTPROJ {
         MessageType t;
 
     public:
-        Message(MessageType t) : t(t) {};
+        Message(MessageType t, NodeID _v, SlotNum _slotID, Quorum _d) : t(t), v(_v), slotID(_slotID), d(_d) {};
 
         MessageType type() { return t; };
 
-        // Message f(std::string s);
-        virtual unsigned int getSlot() = 0;
+        SlotNum getSlot() { return slotID; };
+        NodeID from() { return v; };
 
         virtual bool follows(std::shared_ptr<Message> x) = 0;
+
+    protected:
+        NodeID v;
+        SlotNum slotID;
+        Quorum d = Quorum{};
 
     };
 
     class PrepareMessage : public Message {
 
     public:
-        PrepareMessage() : PrepareMessage(0, 0, Ballot{}, Ballot{}, Ballot{}, Ballot{}, Quorum{}, 0) {};
+        PrepareMessage() : PrepareMessage(0, 0, NILBALLOT, NILBALLOT, NILBALLOT, NILBALLOT, Quorum{}, 0) {};
 
         PrepareMessage(NodeID _v, SlotNum _slotID, Ballot _b, Ballot _p,
                        Ballot _p_, Ballot _c, Quorum _d, Nonce n)
-                : Message(PrepareMessage_t), v(_v), slotID(_slotID), b(_b), p(_p), p_(_p_), c(_c), d(_d), nonce(n) {};
+                : Message(MessageType::PrepareMessage_t, _v, _slotID, _d), b(_b), p(_p), p_(_p_), c(_c), nonce(n) {};
 
         template<class Archive>
         void serialize(Archive &archive) {
@@ -54,30 +59,30 @@ namespace DISTPROJ {
                     CEREAL_NVP(d), CEREAL_NVP(nonce));
         };
 
-        unsigned int getSlot() { return slotID; };
+        bool follows(std::shared_ptr<Message> x) override ;
 
-        NodeID from() { return v; };
-
-        bool follows(std::shared_ptr<Message> x);
+    public:
+        const Ballot &GetB() const { return b; }
+        const Ballot &GetP() const { return p; }
+        const Ballot &GetP_() const { return p_; }
+        const Ballot &GetC() const { return c; }
 
     private:
-        NodeID v;
-        unsigned int slotID;
-        Ballot b, p, p_, c;
-        Quorum d;
-        Nonce nonce;
-
-        friend Slot;
+        Ballot b = NILBALLOT;
+        Ballot p = NILBALLOT;
+        Ballot p_ = NILBALLOT;
+        Ballot c = NILBALLOT;
+        Nonce nonce = 0;
 
     };
 
     class FinishMessage : public Message {
 
     public:
-        FinishMessage() : FinishMessage(0, 0, Ballot{}, Quorum{}) {};
+        FinishMessage() : FinishMessage(0, 0, NILBALLOT, Quorum{}) {};
 
-        FinishMessage(NodeID _v, unsigned int _slotID, Ballot _b, Quorum _d)
-                : Message(FinishMessage_t), v(_v), slotID(_slotID), b(_b), d(_d) {};
+        FinishMessage(NodeID _v, SlotNum _slotID, Ballot _b, Quorum _d)
+                : Message(MessageType::FinishMessage_t, _v, _slotID, _d), b(_b) {};
 
 
         template<class Archive>
@@ -86,19 +91,11 @@ namespace DISTPROJ {
                     CEREAL_NVP(d)); // serialize things by passing them to the archive
         };
 
-        unsigned int getSlot() { return slotID; };
-
-        NodeID from() { return v; };
-
-        bool follows(std::shared_ptr<Message> x);
+        bool follows(std::shared_ptr<Message> x) override ;
+        const Ballot &GetB() const { return b; }
 
     private:
-        NodeID v;
-        unsigned int slotID;
-        Ballot b;
-        Quorum d;
-
-        friend Slot;
+        Ballot b = NILBALLOT;
     };
 
 }
