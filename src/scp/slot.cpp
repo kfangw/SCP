@@ -5,7 +5,6 @@
 #include "scp/slot.hpp"
 
 using namespace DISTPROJ;
-#define NILBALLOT Ballot{0, ""}
 
 Slot::Slot(SlotNum id, LocalNode* m) : phi(PREPARE), node(m) {
     state.slotNum = id;
@@ -26,18 +25,18 @@ std::shared_ptr<FinishMessage> Slot::Finish() {
     return p;
 }
 
-void Slot::lastDefined(NodeID from, std::shared_ptr<Message> *last) {
+std::shared_ptr<Message> Slot::lastDefined(NodeID from) {
+    std::shared_ptr<Message> last;
     try {
-        *last = M.at(from);
+        last = M.at(from);
     } catch (std::out_of_range &e) {
-        *last = std::make_shared<PrepareMessage>(from, 0, NILBALLOT, NILBALLOT, NILBALLOT, NILBALLOT, Quorum{}, 0);
-        M[from] = *last;
+        last = std::make_shared<PrepareMessage>(from, 0, NILBALLOT, NILBALLOT, NILBALLOT, NILBALLOT, Quorum{}, 0);
+        M[from] = last;
     }
-
+    return last;
 }
 
 void Slot::handle(std::shared_ptr<Message> _msg) {
-    printf("PROCESS MESSAGE\n\n\n\n");
     // Add the message to be the last message seen
     // Handle the response
     std::shared_ptr<Message> last;
@@ -46,7 +45,6 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
 #endif
     switch (_msg->type()) {
         case PrepareMessage_t: {
-            printf(" 1111 PROCESS MESSAGE\n\n\n\n");
             auto pmsg = std::static_pointer_cast<PrepareMessage>(_msg);
             auto from = pmsg->from();
 
@@ -58,7 +56,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
             }
 
             // Check if we are already done.
-            lastDefined(from, &last);
+            last = lastDefined(from);
             if (pmsg->follows(last)) {
                 if (phi == EXTERNALIZE && from != node->GetNodeID()) {
                     node->SendMessageTo(Finish(), from);
@@ -70,7 +68,6 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
         }
             break;
         case FinishMessage_t: {
-            printf(" 22222 PROCESS MESSAGE\n\n\n\n");
             auto fmsg = std::static_pointer_cast<FinishMessage>(_msg);
             auto from = fmsg->from();
 
@@ -82,7 +79,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
             }
 
             // Check if we are already done.
-            lastDefined(from, &last);
+            last = lastDefined(from);
             if (fmsg->follows(last)) {
                 if (phi == EXTERNALIZE && from != node->GetNodeID()) {
                     node->SendMessageTo(Finish(), from);
@@ -94,9 +91,7 @@ void Slot::handle(std::shared_ptr<Message> _msg) {
         }
             break;
         default:
-            printf(" 33333 PROCESS MESSAGE\n\n\n\n");
             exit(EXIT_FAILURE);
-            break;
     }
 #ifdef VERBOSE
     Dump();

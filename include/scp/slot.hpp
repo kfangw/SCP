@@ -57,7 +57,7 @@ namespace DISTPROJ {
 
         void handle(std::shared_ptr<FinishMessage> msg);
 
-        void lastDefined(NodeID n, std::shared_ptr<Message> *m);
+        std::shared_ptr<Message> lastDefined(NodeID n);
 
         SlotState state;
         Phase phi;
