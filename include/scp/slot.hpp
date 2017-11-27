@@ -7,14 +7,15 @@
 #include "util/common.hpp"
 #include "ballot.hpp"
 #include "quorum.hpp"
+#include "message.hpp"
 
 namespace DISTPROJ {
 
-    class Message;
-
-    class PrepareMessage;
-
-    class FinishMessage;
+//    class Message;
+//
+//    class PrepareMessage;
+//
+//    class FinishMessage;
 
     class LocalNode;
 
@@ -30,20 +31,30 @@ namespace DISTPROJ {
         SlotNum slotNum;
     };
 
+    struct HandleReturn {
+        bool shouldSendMsg;
+        bool shouldCallBack;
+        MessageType messageType;
+    };
+
 
     class Slot {
 
     public:
         Slot(SlotNum id, LocalNode* m);
 
-        void handle(std::shared_ptr<Message> msg);
+        HandleReturn handle(std::shared_ptr<Message> msg, Quorum qset, NodeID nodeID);
 
         // Dump state / received message inforamtion.
-        void Dump();
+        void Dump(NodeID nodeID);
 
         Phase GetPhase() { return phi; };
 
         std::string GetValue() { return state.c.value; };
+
+        std::shared_ptr<PrepareMessage> Prepare(Quorum qset, NodeID nodeID);
+
+        std::shared_ptr<FinishMessage> Finish(Quorum qset, NodeID nodeID);
 
         std::string Phase_s() {
 
@@ -53,9 +64,9 @@ namespace DISTPROJ {
             return phase.at(phi);
         };
     private:
-        void handle(std::shared_ptr<PrepareMessage> msg);
+        HandleReturn handle(std::shared_ptr<PrepareMessage> msg, Quorum qset, NodeID nodeID);
 
-        void handle(std::shared_ptr<FinishMessage> msg);
+        HandleReturn handle(std::shared_ptr<FinishMessage> msg, Quorum qset, NodeID nodeID);
 
         std::shared_ptr<Message> lastDefined(NodeID n);
 
@@ -64,9 +75,6 @@ namespace DISTPROJ {
         std::map<NodeID, std::shared_ptr<Message>> M;
         LocalNode* node;
 
-        std::shared_ptr<PrepareMessage> Prepare();
-
-        std::shared_ptr<FinishMessage> Finish();
 
     };
 }

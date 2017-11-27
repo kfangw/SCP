@@ -164,28 +164,51 @@ bool LocalNode::ReceiveMessage(std::shared_ptr<Message> *msg) {
 }
 
 void LocalNode::ProcessMessage(std::shared_ptr<Message> msg) {
-    auto slot = msg->getSlot();
-    if (log.find(slot) == log.end()) {
-        log[slot] = std::make_shared<Slot>(slot, this);
-        if (slot > maxSlot) {
-            maxSlot = slot;
+    auto slotID = msg->getSlot();
+    std::shared_ptr<Slot> slot;
+    if (slotLog.find(slotID) == slotLog.end()) {
+        slot = std::make_shared<Slot>(slotID, this);
+        slotLog[slotID] = slot;
+        if (slotID > maxSlot) {
+            maxSlot = slotID;
         }
     }
-    log[msg->getSlot()]->handle(msg);
+    auto handleReturn = slotLog[slotID]->handle(msg, quorumSet, id);
+    printf("HANDLE RETURN : %d %d\n", handleReturn.shouldCallBack, handleReturn.shouldSendMsg);
+    if ( handleReturn.shouldSendMsg ){
+        if (handleReturn.messageType == MessageType::PrepareMessage_t){
+            auto prepareMessage = slot->Prepare(quorumSet, id);
+            if (handleReturn.shouldCallBack)
+                SendMessageTo(prepareMessage, msg->from());
+            else
+                SendMessage(prepareMessage);
+        } else if ( handleReturn.messageType == MessageType::FinishMessage_t){
+            auto finishMessage = slot->Finish(quorumSet, id);
+            if (handleReturn.shouldCallBack)
+                SendMessageTo(finishMessage, msg->from());
+            else
+                SendMessage(finishMessage);
+        } else {
+            exit(EXIT_FAILURE);
+        }
+    }
+    printf("HANDLE RETURN FI\n");
 }
 
+#ifdef USED
 void LocalNode::DumpLog() {
-    for (auto slot : log) {
+    for (auto slot : slotLog) {
         slot.second->Dump();
     }
 }
+#endif
 
 
 std::pair<std::string, bool> LocalNode::View(SlotNum s) {
     std::lock_guard<std::mutex> lock(mtx);
     try {
-        bool b = log.at(s)->GetPhase() == EXTERNALIZE;
-        return std::pair<std::string, bool>(log.at(s)->GetValue(), b);
+        bool b = slotLog.at(s)->GetPhase() == EXTERNALIZE;
+        return std::pair<std::string, bool>(slotLog.at(s)->GetValue(), b);
     } catch (const std::out_of_range& e) {
         return std::pair<std::string, bool>("", false);
     }

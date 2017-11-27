@@ -10,9 +10,9 @@
 
 using namespace DISTPROJ;
 
-#define N_SERVERS 6
+#define N_SERVERS 3
 #define N_CLIENTS 2
-#define THRESHOLD 0.8
+#define THRESHOLD 0.3
 
 int main(int argc, char *argv[]) {
 #ifdef PRINTFUNC

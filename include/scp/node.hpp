@@ -40,7 +40,6 @@ namespace DISTPROJ {
         std::shared_ptr<RPCLayer> rpc;
         Quorum quorumSet;
         std::thread *t;
-        friend Slot;
 
     };
 
@@ -79,8 +78,6 @@ namespace DISTPROJ {
 
         void ProcessMessage(std::shared_ptr<Message> msg);
 
-        void DumpLog();
-
         std::pair<std::string, bool> View(SlotNum s);;
 
         void IncrementMaxSlot() { maxSlot++; };
@@ -94,7 +91,7 @@ namespace DISTPROJ {
         SlotNum NewSlot(); // only one of these can run at a time
         void Tick();
 
-        std::map<SlotNum, std::shared_ptr<Slot>> log;
+        std::map<SlotNum, std::shared_ptr<Slot>> slotLog;
         std::set<NodeID> knownNodes;
         MessageClient *mc;
 
