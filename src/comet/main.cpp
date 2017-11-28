@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     std::array<std::shared_ptr<ClientKV>, N_CLIENTS> clients0;
     for (auto i = 0; i < N_CLIENTS; i++)
-        clients0[i] = std::make_shared<ClientKV>(servers[0], "");
+        clients0[i] = std::make_shared<ClientKV>(servers[1], "");
 
     std::array<std::shared_ptr<ClientKV>, N_CLIENTS> clients1;
     for (auto i = 0; i < N_CLIENTS; i++)

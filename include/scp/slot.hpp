@@ -32,21 +32,23 @@ namespace DISTPROJ {
 
 
     class Slot {
+    private:
+        SlotState state;
+        Phase phi;
+        std::map<NodeID, std::shared_ptr<Message>> M;
+        LocalNode* node;
+
 
     public:
         Slot(SlotNum id, LocalNode* m);
 
         void handle(std::shared_ptr<Message> msg);
 
-        // Dump state / received message inforamtion.
-        void Dump();
-
         Phase GetPhase() { return phi; };
 
         std::string GetValue() { return state.c.value; };
 
         std::string Phase_s() {
-
             const static std::map<Phase, std::string> phase = {{PREPARE,     "Prepare"},
                                                                {FINISH,      "Finish"},
                                                                {EXTERNALIZE, "Externalize"}};
@@ -59,15 +61,11 @@ namespace DISTPROJ {
 
         std::shared_ptr<Message> lastDefined(NodeID n);
 
-        SlotState state;
-        Phase phi;
-        std::map<NodeID, std::shared_ptr<Message>> M;
-        LocalNode* node;
-
         std::shared_ptr<PrepareMessage> Prepare();
 
         std::shared_ptr<FinishMessage> Finish();
 
+        bool isExceededThreshold(Ballot b);
     };
 }
 

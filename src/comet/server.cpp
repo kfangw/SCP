@@ -3,10 +3,13 @@
 
 using namespace DISTPROJ;
 
+int node_id = 0;
+
 ServerKV::ServerKV(std::shared_ptr<RPCLayer> rpc, float _quorumThresholdRatio)
         : quorumThresholdRatio(_quorumThresholdRatio) {
 
-    node = new LocalNode(nrand(), rpc, Quorum{});
+    node = new LocalNode(node_id++, rpc, Quorum{});
+//    node = new LocalNode(nrand(), rpc, Quorum{});
     curSlot = 0;
 
     node->Start();

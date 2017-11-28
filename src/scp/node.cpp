@@ -164,28 +164,30 @@ bool LocalNode::ReceiveMessage(std::shared_ptr<Message> *msg) {
 }
 
 void LocalNode::ProcessMessage(std::shared_ptr<Message> msg) {
-    auto slot = msg->getSlot();
-    if (log.find(slot) == log.end()) {
-        log[slot] = std::make_shared<Slot>(slot, this);
-        if (slot > maxSlot) {
-            maxSlot = slot;
+    auto slotID = msg->getSlot();
+    std::shared_ptr<Slot> slot;
+    if (slotLog.find(slotID) == slotLog.end()) {
+        slot = std::make_shared<Slot>(slotID, this);
+        slotLog[slotID] = slot;
+        if (slotID > maxSlot) {
+            maxSlot = slotID;
         }
     }
-    log[msg->getSlot()]->handle(msg);
+    slotLog[slotID]->handle(msg);
 }
 
-void LocalNode::DumpLog() {
-    for (auto slot : log) {
-        slot.second->Dump();
-    }
-}
+//void LocalNode::DumpLog() {
+//    for (auto slot : slotLog) {
+//        slot.second->Dump();
+//    }
+//}
 
 
 std::pair<std::string, bool> LocalNode::View(SlotNum s) {
     std::lock_guard<std::mutex> lock(mtx);
     try {
-        bool b = log.at(s)->GetPhase() == EXTERNALIZE;
-        return std::pair<std::string, bool>(log.at(s)->GetValue(), b);
+        bool b = slotLog.at(s)->GetPhase() == EXTERNALIZE;
+        return std::pair<std::string, bool>(slotLog.at(s)->GetValue(), b);
     } catch (const std::out_of_range& e) {
         return std::pair<std::string, bool>("", false);
     }

@@ -27,12 +27,14 @@ namespace DISTPROJ {
         MessageType t;
 
     public:
-        Message(MessageType t, NodeID _v, SlotNum _slotID, Quorum _d) : t(t), v(_v), slotID(_slotID), d(_d) {};
+        Message(MessageType t, NodeID _v, SlotNum _slotID, Quorum _d, Ballot _b)
+                : t(t), v(_v), slotID(_slotID), d(_d), b(_b){};
 
         MessageType type() { return t; };
 
         SlotNum getSlot() { return slotID; };
         NodeID from() { return v; };
+        const Ballot &GetB() const { return b; }
 
         virtual bool follows(std::shared_ptr<Message> x) = 0;
 
@@ -40,6 +42,7 @@ namespace DISTPROJ {
         NodeID v;
         SlotNum slotID;
         Quorum d = Quorum{};
+        Ballot b = NILBALLOT;
 
     };
 
@@ -50,7 +53,7 @@ namespace DISTPROJ {
 
         PrepareMessage(NodeID _v, SlotNum _slotID, Ballot _b, Ballot _p,
                        Ballot _p_, Ballot _c, Quorum _d, Nonce n)
-                : Message(MessageType::PrepareMessage_t, _v, _slotID, _d), b(_b), p(_p), p_(_p_), c(_c), nonce(n) {};
+                : Message(MessageType::PrepareMessage_t, _v, _slotID, _d, _b), p(_p), p_(_p_), c(_c), nonce(n) {};
 
         template<class Archive>
         void serialize(Archive &archive) {
@@ -62,13 +65,11 @@ namespace DISTPROJ {
         bool follows(std::shared_ptr<Message> x) override ;
 
     public:
-        const Ballot &GetB() const { return b; }
         const Ballot &GetP() const { return p; }
         const Ballot &GetP_() const { return p_; }
         const Ballot &GetC() const { return c; }
 
     private:
-        Ballot b = NILBALLOT;
         Ballot p = NILBALLOT;
         Ballot p_ = NILBALLOT;
         Ballot c = NILBALLOT;
@@ -82,7 +83,7 @@ namespace DISTPROJ {
         FinishMessage() : FinishMessage(0, 0, NILBALLOT, Quorum{}) {};
 
         FinishMessage(NodeID _v, SlotNum _slotID, Ballot _b, Quorum _d)
-                : Message(MessageType::FinishMessage_t, _v, _slotID, _d), b(_b) {};
+                : Message(MessageType::FinishMessage_t, _v, _slotID, _d, _b) {};
 
 
         template<class Archive>
@@ -92,10 +93,7 @@ namespace DISTPROJ {
         };
 
         bool follows(std::shared_ptr<Message> x) override ;
-        const Ballot &GetB() const { return b; }
 
-    private:
-        Ballot b = NILBALLOT;
     };
 
 }
