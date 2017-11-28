@@ -5,6 +5,9 @@
 using namespace DISTPROJ;
 
 bool FinishMessage::follows(std::shared_ptr<Message> x) {
+    /**
+     * Check Current Message's number is GTE past Message
+     */
     auto m = std::static_pointer_cast<FinishMessage>(x);
     switch (x->type()) {
         case FinishMessage_t:
@@ -18,6 +21,9 @@ bool FinishMessage::follows(std::shared_ptr<Message> x) {
 
 
 bool PrepareMessage::follows(std::shared_ptr<Message> x) {
+    /**
+     * Check Current Message's number is GTE past Message
+     */
     auto m = std::static_pointer_cast<PrepareMessage>(x);
     auto first = b.num > m->b.num;
     auto first_continue = b.num == m->b.num;
@@ -37,5 +43,6 @@ bool PrepareMessage::follows(std::shared_ptr<Message> x) {
             return true;
     }
 }
+
 
 

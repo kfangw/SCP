@@ -16,7 +16,7 @@ hunter_add_package(OpenSSL)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-add_definitions(-DVERBOSE=1 -DDEBUG=1)
+#add_definitions(-DVERBOSE=1 -DDEBUG=1)
 #add_definitions(-DPRINTFUNC=1)
 
 #include the subdirectory containing our libs

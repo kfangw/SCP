@@ -9,6 +9,7 @@
 
 
 #define DIFFICULTY 3
+#define NILBALLOT Ballot{0, ""}
 
 namespace DISTPROJ {
 

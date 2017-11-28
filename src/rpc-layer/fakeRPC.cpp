@@ -47,12 +47,9 @@ void FakeRPCLayer::Send(std::shared_ptr<Message> msg, NodeID id, NodeID peerID) 
 
 bool FakeRPCLayer::Receive(std::shared_ptr<Message> *msg, NodeID id) {
     // We only have 1 thread dequeing so this is chill.
-    printf("%llu", id) ;
     if (messageQueues[id]->Empty()) {
-        printf("IFIF\n\n");
         return false;
     } else {
-        printf("ELSE\n\n");
         std::istringstream ss;
         ss.str(messageQueues[id]->Get());
         {
